@@ -1,0 +1,6 @@
+{
+  "RaffleModule#Raffle": "0x3D63c50AD04DD5aE394CAB562b7691DD5de7CF6f",
+  "RaffleModule#TransparentUpgradeableProxy": "0x103A3b128991781EE2c8db0454cA99d67b257923",
+  "RaffleModule#RaffleProxy": "0x103A3b128991781EE2c8db0454cA99d67b257923",
+  "RaffleModule#ProxyAdmin": "0xD8Fdf2Adc2F6502755af003661664a695ECC7d12"
+}
