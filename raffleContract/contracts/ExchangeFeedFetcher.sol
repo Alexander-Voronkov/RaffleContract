@@ -1,19 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 contract ExchangeFeedFetcher {
-    function getLatestData(address tokenAddress) public view returns (uint256) {
-        AggregatorV3Interface dataFeed = AggregatorV3Interface(tokenAddress);
+    constructor() {
+    }
 
+    function getLatestData(address tokenAddress) public view returns (int256 answer, uint8 decimals) {
+        AggregatorV3Interface tempAggregator = AggregatorV3Interface(tokenAddress);
         (
-            ,
-            /* uint80 roundID */ int answer /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/,
-            ,
-            ,
+            /* uint80 roundId */,
+            int256 answer,
+            /*uint256 startedAt*/,
+            /*uint256 updatedAt*/,
+            /*uint80 answeredInRound*/
+        ) = tempAggregator.latestRoundData();
 
-        ) = dataFeed.latestRoundData();
-        return answer >= 0 ? uint256(answer) : uint256(-answer);
+        uint8 decimals = tempAggregator.decimals();
+
+        return (answer, decimals);
     }
 }
