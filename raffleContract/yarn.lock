@@ -1284,6 +1284,14 @@
   dependencies:
     "@types/node" "*"
 
+"@uniswap/v4-core@uniswap/v4-core":
+  version "1.0.2"
+  resolved "https://codeload.github.com/uniswap/v4-core/tar.gz/59d3ecf53afa9264a16bba0e38f4c5d2231f80bc"
+
+"@uniswap/v4-periphery@uniswap/v4-periphery":
+  version "1.0.2"
+  resolved "https://codeload.github.com/uniswap/v4-periphery/tar.gz/ad04c9f24a170accf5ea1b2836bbafd514537ca6"
+
 "@yarnpkg/lockfile@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"

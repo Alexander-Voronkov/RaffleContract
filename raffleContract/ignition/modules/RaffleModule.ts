@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const RaffleModule = buildModule("RaffleModule", (m) => {
+const RaffleModule = (interval: number) => buildModule("RaffleModule", (m) => {
 
   const admin = m.getAccount(0);
 
@@ -19,7 +19,7 @@ const RaffleModule = buildModule("RaffleModule", (m) => {
   m.call(
     raffleProxy,
     "initialize",
-    [],
+    [interval],
     { from: admin }
   );
 
