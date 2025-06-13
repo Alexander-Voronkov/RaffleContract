@@ -35,6 +35,15 @@ describe('RaffleTests', async () => {
         expect(balance).to.be.a('bigint');
     });
 
+    it('should be ownable', async () => {
+
+        const { raffleProxy, owner } = await loadFixture(deployRaffleModule);
+
+        const raffleOwner = await raffleProxy.owner();
+
+        expect(raffleOwner).to.eq(owner);
+    });
+
     it("should perform upkeep after interval", async function () {
         interval = 60;
         const { raffleProxy } = await loadFixture(deployRaffleModule);
@@ -42,16 +51,15 @@ describe('RaffleTests', async () => {
         let [needed] = await raffleProxy.checkUpkeep("0x");
         expect(needed).to.equal(false);
 
-        // Продвигаем время
         await time.increase(interval + 1);
 
-        // Теперь upkeep нужен
         [needed] = await raffleProxy.checkUpkeep("0x");
         expect(needed).to.equal(true);
 
-        // Выполняем upkeep
+        const counter = await raffleProxy.counter();
+
         await raffleProxy.performUpkeep("0x");
 
-        expect(await raffleProxy.counter()).to.equal(1);
+        expect(await raffleProxy.counter()).to.equal(Number(counter) + 1);
     });
 });

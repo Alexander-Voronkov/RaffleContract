@@ -1,4 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import { bnb_usd_feed, bnbAddress, usdc_usd_feed, usdcAddress, usdt_usd_feed, usdtAddress } from "../../constants/contractAddresses";
 
 const RaffleModule = (interval: number) => buildModule("RaffleModule", (m) => {
 
@@ -19,7 +20,7 @@ const RaffleModule = (interval: number) => buildModule("RaffleModule", (m) => {
   m.call(
     raffleProxy,
     "initialize",
-    [interval],
+    [interval, [usdcAddress, usdtAddress, bnbAddress], [usdc_usd_feed, usdt_usd_feed, bnb_usd_feed]],
     { from: admin }
   );
 
