@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "test": "rmdir /s /q ignition\\deployments && yarn hardhat test --network localhost",
+    "deploy": "yarn hardhat ignition deploy ignition/modules/RaffleModuleDeploy.ts --network localhost",
+    "startNode": "yarn hardhat node"
+  },
   "devDependencies": {
     "@chainlink/contracts": "^1.4.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { ethers, ignition, network } from 'hardhat';
+import { ethers, ignition } from 'hardhat';
 import ExchangeFeedFetcherModule from '../ignition/modules/ExchangeFeedFetcherModule';
-import { ExchangeFeedFetcher } from '../typechain-types';
+import { ExchangeFeedFetcher__factory } from '../typechain-types';
 import * as feeds from '../constants/contractAddresses';
 
 describe('ExchangeFeedTests', async () => {
@@ -10,7 +10,7 @@ describe('ExchangeFeedTests', async () => {
         const { fetcher } = await ignition.deploy(ExchangeFeedFetcherModule);
         const [owner, ...others] = await ethers.getSigners();
         
-        const typedFetcher = fetcher as unknown as ExchangeFeedFetcher;
+        const typedFetcher = ExchangeFeedFetcher__factory.connect(await fetcher.getAddress(), owner);
 
         return { fetcher: typedFetcher, owner, others };
     }

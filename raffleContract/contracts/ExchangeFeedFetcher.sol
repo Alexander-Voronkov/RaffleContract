@@ -7,8 +7,8 @@ contract ExchangeFeedFetcher {
     constructor() {
     }
 
-    function getLatestData(address tokenAddress) public view returns (int256 answer, uint8 decimals) {
-        AggregatorV3Interface tempAggregator = AggregatorV3Interface(tokenAddress);
+    function getLatestData(address tokenFeedAddress) public view returns (int256 answer, uint8 decimals) {
+        AggregatorV3Interface tempAggregator = AggregatorV3Interface(tokenFeedAddress);
         (
             /* uint80 roundId */,
             int256 answer,

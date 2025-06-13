@@ -2,7 +2,7 @@ import { ethers, ignition } from "hardhat";
 import VRFModule from "../ignition/modules/VRFModule";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { VRFMock, VRFv2Consumer } from "../typechain-types";
+import { VRFMock, VRFMock__factory, VRFv2Consumer, VRFv2Consumer__factory } from "../typechain-types";
 
 describe('VRF tests', async function () {
 
@@ -10,8 +10,8 @@ describe('VRF tests', async function () {
         const { mock, consumer } = await ignition.deploy(VRFModule);
         const [ owner, ...others ] = await ethers.getSigners();
 
-        const typedMock = mock as unknown as VRFMock;
-        const typedConsumer = consumer as unknown as VRFv2Consumer;
+        const typedMock = VRFMock__factory.connect(await mock.getAddress(), owner);
+        const typedConsumer = VRFv2Consumer__factory.connect(await consumer.getAddress(), owner);
 
         return { mock: typedMock, consumer: typedConsumer, owner, others };
     }
