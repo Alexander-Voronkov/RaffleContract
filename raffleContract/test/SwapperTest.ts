@@ -2,15 +2,15 @@ import { ethers, ignition } from "hardhat";
 import SwapperModule from "../ignition/modules/SwapperModule";
 import { IERC20, IERC20__factory, IWETH, IWETH__factory, Swapper, Swapper__factory } from "../typechain-types";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import * as constants from '../constants/contractAddresses';
 import { AddressLike } from "ethers";
+import { binanceWhale, usdtAddress } from "../constants/contractAddresses";
 
 describe('SwapperTests', async () => {
     async function fundWithUSDT(to: AddressLike, amount: bigint, usdt: IERC20) {
-        await ethers.provider.send("hardhat_impersonateAccount", [constants.binanceUsdtWhale]);
-        const whale = await ethers.getSigner(constants.binanceUsdtWhale);
+        await ethers.provider.send("hardhat_impersonateAccount", [binanceWhale]);
+        const whale = await ethers.getSigner(binanceWhale);
         await usdt.connect(whale).transfer(to, amount);
-        await ethers.provider.send("hardhat_stopImpersonatingAccount", [constants.binanceUsdtWhale]);
+        await ethers.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);
     }
 
     async function deploySwapper() {
@@ -41,7 +41,7 @@ describe('SwapperTests', async () => {
         let receiverBalanceInWeth = await weth.balanceOf(others[1]);
         console.log('receiver balance in wether before swap ', ethers.formatEther(receiverBalanceInWeth));
         
-        await swapper.swapTokenForETH(constants.usdtAddress, 1000000 * 3000, others[0], others[1]);
+        await swapper.swapTokenForETH(usdtAddress, 1000000 * 3000, others[0], others[1]);
 
         receiverBalanceInWeth = await weth.balanceOf(others[1]);
         console.log('receiver balance in wether after swap ', ethers.formatEther(receiverBalanceInWeth), 'WETH');

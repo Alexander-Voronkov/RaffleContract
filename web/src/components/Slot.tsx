@@ -1,108 +1,184 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { useRafflePlayers } from '../hooks/useRaffle';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  Paper,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 
 export default function WheelOfFortune() {
-  const prizes = [
-    'Prize 1',
-    'Prize 2',
-    'Prize 3',
-    'Prize 4',
-    'Prize 5',
-    'Prize 6',
-  ];
+  const { players = [], isLoading, error } = useRafflePlayers();
+
   const colors = ['#F87171', '#FBBF24', '#34D399', '#60A5FA', '#A78BFA', '#F472B6'];
-  const segmentAngle = 360 / prizes.length;
+  const segmentAngle = useMemo(() => 360 / (players.length || 1), [players]);
 
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const [winner, setWinner] = useState(null);
+  const [winner, setWinner] = useState<string | null>(null);
   const wheelRef = useRef(null);
 
+  const [depositAmount, setDepositAmount] = useState('');
+  const [selectedToken, setSelectedToken] = useState('USDT');
+
   const spin = () => {
-    if (spinning) return;
+    if (spinning || players.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * players.length);
+    const angleToStop = 360 - (randomIndex * segmentAngle + segmentAngle / 2); // align center with top
+    const extraSpins = 5 * 360;
+    const finalRotation = extraSpins + angleToStop;
+
     setSpinning(true);
-
-    const randomIndex = Math.floor(Math.random() * prizes.length);
-    const extraSpins = 8; // full rotations
-    const finalRotation = extraSpins * 360 + randomIndex * segmentAngle + segmentAngle / 2;
-
     setRotation(prev => prev + finalRotation);
 
-    // Wait for animation to finish (4s)
     setTimeout(() => {
       setSpinning(false);
-      setWinner(prizes[randomIndex]);
+      setWinner(players[randomIndex]);
     }, 4000);
   };
 
   return (
-    <div className="flex flex-col items-center p-6">
-      <div className="relative">
+    <Box display="flex" flexDirection="column" alignItems="center" p={4} gap={4}>
+      <Box position="relative">
         {/* Pointer */}
-        <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-0 h-0 border-l-8 border-r-8 border-b-16 border-transparent border-b-red-500 z-10"></div>
+        <Box
+          position="absolute"
+          left="50%"
+          top={-16}
+          sx={{
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderBottom: '16px solid red',
+            zIndex: 10,
+          }}
+        />
 
         {/* Wheel */}
-        <div
+        <Box
           ref={wheelRef}
-          className="w-72 h-72 rounded-full overflow-hidden"
-          style={{
+          width={300}
+          height={300}
+          borderRadius="50%"
+          overflow="hidden"
+          bgcolor="#e0e0e0"
+          boxShadow={3}
+          sx={{
             transition: 'transform 4s ease-out',
             transform: `rotate(${rotation}deg)`,
           }}
         >
-          <svg viewBox="0 0 300 300" className="w-full h-full">
-            {prizes.map((prize, i) => {
-              const startAngle = segmentAngle * i;
-              const endAngle = startAngle + segmentAngle;
-              const largeArc = segmentAngle > 180 ? 1 : 0;
-              const radius = 150;
-              const x1 = 150 + radius * Math.cos((Math.PI / 180) * startAngle);
-              const y1 = 150 + radius * Math.sin((Math.PI / 180) * startAngle);
-              const x2 = 150 + radius * Math.cos((Math.PI / 180) * endAngle);
-              const y2 = 150 + radius * Math.sin((Math.PI / 180) * endAngle);
+          <svg viewBox="0 0 300 300" width="100%" height="100%">
+            {players.length > 0 ? (
+              players.map((player, i) => {
+                const startAngle = segmentAngle * i;
+                const endAngle = startAngle + segmentAngle;
+                const largeArc = segmentAngle > 180 ? 1 : 0;
+                const radius = 150;
+                const x1 = 150 + radius * Math.cos((Math.PI / 180) * startAngle);
+                const y1 = 150 + radius * Math.sin((Math.PI / 180) * startAngle);
+                const x2 = 150 + radius * Math.cos((Math.PI / 180) * endAngle);
+                const y2 = 150 + radius * Math.sin((Math.PI / 180) * endAngle);
+                const midAngle = startAngle + segmentAngle / 2;
+                const labelX = 150 + (radius - 40) * Math.cos((Math.PI / 180) * midAngle);
+                const labelY = 150 + (radius - 40) * Math.sin((Math.PI / 180) * midAngle);
 
-              const midAngle = startAngle + segmentAngle / 2;
-              const labelX = 150 + (radius - 40) * Math.cos((Math.PI / 180) * midAngle);
-              const labelY = 150 + (radius - 40) * Math.sin((Math.PI / 180) * midAngle);
-
-              return (
-                <g key={i}>
-                  <path
-                    d={`M150,150 L${x1},${y1} A${radius},${radius} 0 ${largeArc} 1 ${x2},${y2} Z`}
-                    fill={colors[i % colors.length]}
-                    stroke="#fff"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={labelX}
-                    y={labelY}
-                    fill="#fff"
-                    fontSize="14"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    transform={`rotate(${midAngle}, ${labelX}, ${labelY})`}
-                  >
-                    {prize}
-                  </text>
-                </g>
-              );
-            })}
+                return (
+                  <g key={i}>
+                    <path
+                      d={`M150,150 L${x1},${y1} A${radius},${radius} 0 ${largeArc} 1 ${x2},${y2} Z`}
+                      fill={colors[i % colors.length]}
+                      stroke="#fff"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={labelX}
+                      y={labelY}
+                      fill="#fff"
+                      fontSize="12"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      transform={`rotate(${midAngle}, ${labelX}, ${labelY})`}
+                    >
+                      {player}
+                    </text>
+                  </g>
+                );
+              })
+            ) : (
+              <text
+                x="150"
+                y="150"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#555"
+                fontSize="16"
+              >
+                Нет игроков
+              </text>
+            )}
           </svg>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <button
+      <Button
+        variant="contained"
+        color="primary"
         onClick={spin}
-        disabled={spinning}
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        disabled={spinning || players.length === 0}
       >
-        {spinning ? 'Spinning...' : 'Spin'}
-      </button>
+        {spinning ? 'Крутится...' : 'Крутить'}
+      </Button>
 
       {winner && (
-        <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
-          🎉 Winner: <strong>{winner}</strong>
-        </div>
+        <Paper elevation={2} sx={{ padding: 2, bgcolor: '#e6ffe6' }}>
+          <Typography color="green" variant="subtitle1">
+            🎉 Победитель: <strong>{winner}</strong>
+          </Typography>
+        </Paper>
       )}
-    </div>
+
+      {/* Deposit Form */}
+      <Box display="flex" flexDirection="column" gap={2} width="100%" maxWidth={320}>
+        <TextField
+          label="Сумма"
+          type="number"
+          value={depositAmount}
+          onChange={(e) => setDepositAmount(e.target.value)}
+          fullWidth
+        />
+
+        <FormControl fullWidth>
+          <InputLabel>Токен</InputLabel>
+          <Select
+            value={selectedToken}
+            label="Токен"
+            onChange={(e) => setSelectedToken(e.target.value)}
+          >
+            <MenuItem value="USDT">USDT</MenuItem>
+            <MenuItem value="USDC">USDC</MenuItem>
+            <MenuItem value="BNB">BNB</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => {
+            alert(`Депозит: ${depositAmount} ${selectedToken} (логика ещё не реализована)`);
+          }}
+        >
+          Депозит
+        </Button>
+      </Box>
+    </Box>
   );
 }

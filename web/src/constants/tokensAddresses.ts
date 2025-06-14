@@ -10,4 +10,4 @@ export const wethAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 
 export const uniswapRouterAddress = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
 
-export const binanceWhale = '0xF977814e90dA44bFA03b6295A0616a897441aceC';
+export const binanceUsdtWhale = '0xF977814e90dA44bFA03b6295A0616a897441aceC';

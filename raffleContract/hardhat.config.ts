@@ -9,7 +9,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
       },
-      chainId: 1, 
+      chainId: 1337, 
     }
   }
 };

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "rmdir /s /q ignition\\deployments && yarn hardhat test --network localhost",
     "deploy": "yarn hardhat ignition deploy ignition/modules/RaffleModuleDeploy.ts --network localhost",
-    "startNode": "yarn hardhat node"
+    "startNode": "yarn hardhat node",
+    "fundAccounts": "yarn hardhat run scripts/fundAccounts.ts --network localhost"
   },
   "devDependencies": {
     "@chainlink/contracts": "^1.4.0",

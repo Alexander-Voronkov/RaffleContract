@@ -3,7 +3,7 @@ import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
 import RaffleModule from '../ignition/modules/RaffleModule';
 import { ethers, ignition } from 'hardhat';
 import { IERC20, IERC20__factory, IWETH__factory, Raffle, Raffle__factory, Swapper__factory } from '../typechain-types';
-import { binanceUsdtWhale, usdtAddress } from '../constants/contractAddresses';
+import { binanceWhale, usdtAddress } from '../constants/contractAddresses';
 import { AddressLike } from 'ethers';
 
 describe('RaffleTests', async () => {
@@ -11,10 +11,10 @@ describe('RaffleTests', async () => {
     let interval: number = 1;
 
     async function fundWithUSDT(to: AddressLike, amount: bigint, usdt: IERC20) {
-        await ethers.provider.send("hardhat_impersonateAccount", [binanceUsdtWhale]);
-        const whale = await ethers.getSigner(binanceUsdtWhale);
+        await ethers.provider.send("hardhat_impersonateAccount", [binanceWhale]);
+        const whale = await ethers.getSigner(binanceWhale);
         await usdt.connect(whale).transfer(to, amount);
-        await ethers.provider.send("hardhat_stopImpersonatingAccount", [binanceUsdtWhale]);
+        await ethers.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);
     }
 
     async function deployRaffleModule() {
@@ -47,7 +47,7 @@ describe('RaffleTests', async () => {
         const network = await ethers.provider.getNetwork();
         console.log('Chain ID:', network.chainId);
 
-        expect(network.chainId).to.eq(1);
+        expect(network.chainId).to.eq(1337);
 
         const balance = await ethers.provider.getBalance("0x742d35Cc6634C0532925a3b844Bc454e4438f44e");
         expect(balance).to.be.a('bigint');

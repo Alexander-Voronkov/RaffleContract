@@ -1,5 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
-import { bnb_usd_feed, bnbAddress, usdc_usd_feed, usdcAddress, usdt_usd_feed, usdtAddress } from "../../constants/contractAddresses";
+import { binanceWhale, bnb_usd_feed, bnbAddress, usdc_usd_feed, usdcAddress, usdt_usd_feed, usdtAddress } from "../../constants/contractAddresses";
 import SwapperModule from "./SwapperModule";
 import VRFModule from "./VRFModule";
 import ExchangeFeedFetcherModule from "./ExchangeFeedFetcherModule";
