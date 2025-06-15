@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { binanceWhale, bnbAddress, usdcAddress, usdtAddress } from "../constants/contractAddresses";
+import { binanceWhale, usdcAddress, usdtAddress } from "../constants/contractAddresses";
 
 const receivers = [
   "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -11,21 +11,18 @@ const receivers = [
 ];
 
 async function main() {
-  const amount = ethers.parseUnits("1000", 6); // USDT/USDC = 6 decimals
-  const bnbAmount = ethers.parseUnits("100", 18); // bnb = 6 decimals
+  const amount = ethers.parseUnits("10000", 6);
 
   await network.provider.send("hardhat_impersonateAccount", [binanceWhale]);
 
   const signer = await ethers.provider.getSigner(binanceWhale);
   const usdt = await ethers.getContractAt("IERC20", usdtAddress);
   const usdc = await ethers.getContractAt("IERC20", usdcAddress);
-  const bnb  = await ethers.getContractAt("IERC20", bnbAddress);
 
   for (const receiver of receivers) {
     console.log(`Sending to ${receiver}...`);
     await usdt.connect(signer).transfer(receiver, amount);
     await usdc.connect(signer).transfer(receiver, amount);
-    await bnb.connect(signer).transfer(receiver, bnbAmount);
   }
 
   await network.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);

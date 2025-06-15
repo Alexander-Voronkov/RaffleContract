@@ -1,3 +1,5 @@
+import { formatUnits } from "viem";
+
 export function formatBalance(value?: bigint, decimals?: number, symbol?: string) {
-    return `${(value ?? BigInt(0)) / BigInt(10 ** (decimals ?? 1))} - ${symbol ?? 'units'}`;
+  return `${formatUnits(value ?? 0n, decimals ?? 18)} ${symbol ?? 'units'}`;
 }

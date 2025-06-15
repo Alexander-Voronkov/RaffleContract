@@ -14,20 +14,19 @@ describe('SwapperTests', async () => {
     }
 
     async function deploySwapper() {
-        const { swapper, usdt, usdc, bnb, weth } = await ignition.deploy(SwapperModule);
+        const { swapper, usdt, usdc, weth } = await ignition.deploy(SwapperModule);
         const [ owner, ...others ] = await ethers.getSigners();
 
         const typedSwapper = Swapper__factory.connect(await swapper.getAddress(), owner);
         const typedUsdt = IERC20__factory.connect(await usdt.getAddress(), owner);
         const typedUsdc = IERC20__factory.connect(await usdc.getAddress(), owner);
-        const typedBnb = IERC20__factory.connect(await bnb.getAddress(), owner);
         const typedWeth = IWETH__factory.connect(await weth.getAddress(), owner);
 
-        return { swapper: typedSwapper, usdt: typedUsdt, usdc: typedUsdc, bnb: typedBnb, weth: typedWeth, owner, others };
+        return { swapper: typedSwapper, usdt: typedUsdt, usdc: typedUsdc, weth: typedWeth, owner, others };
     }
 
     it('swapper is swapping between all supported tokens', async () => {
-        const { swapper, usdt, usdc, bnb, weth, owner, others } = await loadFixture(deploySwapper);
+        const { swapper, usdt, usdc, weth, owner, others } = await loadFixture(deploySwapper);
 
         await fundWithUSDT(others[0], BigInt(1000000 * 3000), usdt);
         const balanceAfterFunding = await usdt.connect(others[0]).balanceOf(others[0]);

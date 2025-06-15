@@ -18,7 +18,7 @@ describe('RaffleTests', async () => {
     }
 
     async function deployRaffleModule() {
-        const { proxy, raffleProxy, proxyAdmin, mock, consumer, swapper, usdc, usdt, bnb, weth } 
+        const { proxy, raffleProxy, proxyAdmin, mock, consumer, swapper, usdc, usdt, weth } 
             = await ignition.deploy(RaffleModule(interval));
         const [owner, ...others] = await ethers.getSigners();
 
@@ -26,7 +26,6 @@ describe('RaffleTests', async () => {
         const typedSwapper = Swapper__factory.connect(await swapper.getAddress(), owner);
         const typedUsdt = IERC20__factory.connect(await usdt.getAddress(), owner);
         const typedUsdc = IERC20__factory.connect(await usdc.getAddress(), owner);
-        const typedBnb = IERC20__factory.connect(await bnb.getAddress(), owner);
         const typedWeth = IWETH__factory.connect(await weth.getAddress(), owner);
         
         return { 
@@ -38,7 +37,6 @@ describe('RaffleTests', async () => {
             swapper: typedSwapper,
             usdt: typedUsdt,
             usdc: typedUsdc,
-            bnb: typedBnb,
             weth: typedWeth,
         };
     }
@@ -56,7 +54,7 @@ describe('RaffleTests', async () => {
     it('should be ownable', async () => {
         interval = 60;
 
-        const { raffleProxy, owner, usdt, usdc, bnb } = await loadFixture(deployRaffleModule);
+        const { raffleProxy, owner, usdt, usdc } = await loadFixture(deployRaffleModule);
 
         const raffleOwner = await raffleProxy.owner();
 

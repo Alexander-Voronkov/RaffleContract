@@ -7,7 +7,7 @@ const Home = () => {
       <div className="w-64">
         <SlotCasino/>
       </div>
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxeK4S2klvXPcvA_Ajob_LyTP934WaJDHe-w&s" alt="Right" />
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjDmo8Gpgn2Wr3p33euSswV0t0hr4pIaeeMQ&s" alt="Right" />
   </div>
   );
 };

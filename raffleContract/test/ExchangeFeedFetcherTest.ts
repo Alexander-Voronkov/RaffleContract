@@ -20,22 +20,18 @@ describe('ExchangeFeedTests', async () => {
         const { fetcher, owner, others } = await loadFixture(deployExchangeFeedModule);
         
         const [currency1, decimals1] = await fetcher.connect(owner).getLatestData(feeds.eth_usd_feed);
-        const [currency2, decimals2] = await fetcher.connect(owner).getLatestData(feeds.bnb_usd_feed);
         const [currency3, decimals3] = await fetcher.connect(owner).getLatestData(feeds.usdc_usd_feed);
         const [currency4, decimals4] = await fetcher.connect(owner).getLatestData(feeds.usdt_usd_feed);
  
         console.log('ETH TO USD: ', Number(currency1) / (10 ** Number(decimals1)));
-        console.log('BNB TO USD: ', Number(currency2) / (10 ** Number(decimals2)));
         console.log('USDC TO USD: ', Number(currency3) / (10 ** Number(decimals3)));
         console.log('USDT TO USD: ', Number(currency4) / (10 ** Number(decimals4)));
 
         console.log('ETH decimals ', decimals1);
-        console.log('BNB decimals ', decimals2);
         console.log('USDC decimals ', decimals3);
         console.log('USDT decimals ', decimals4);
 
         expect(currency1).to.be.a('bigint');
-        expect(currency2).to.be.a('bigint');
         expect(currency3).to.be.a('bigint');
         expect(currency4).to.be.a('bigint');
     });

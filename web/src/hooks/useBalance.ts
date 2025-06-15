@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBalance } from "wagmi";
-import { bnbAddress, usdcAddress, usdtAddress } from "../constants/tokensAddresses";
+import { usdcAddress, usdtAddress } from "../constants/tokensAddresses";
 import { useAppKitAccount } from "@reown/appkit/react";
 
 type TokenBalance = {
@@ -10,16 +10,13 @@ type TokenBalance = {
 };
 
 export function useAllTokenBalances() {
-  const [balances, setBalances] = useState<Map<string, TokenBalance>>(new Map<string, TokenBalance>());
   const [loading, setLoading] = useState(false);
   const { address } = useAppKitAccount();
   
   const usdtData  = getTokenBalance(address as `0x${string}`, usdtAddress);
   const usdcData = getTokenBalance(address as `0x${string}`, usdcAddress);
-  const bnbData = getTokenBalance(address as `0x${string}`, bnbAddress);
 
-  const fetchBalances = useCallback(async () => {
-
+  const balances = useMemo(() => {
     console.log('refetching ...');
 
     setLoading(true);
@@ -35,23 +32,14 @@ export function useAllTokenBalances() {
         symbol: usdcData?.symbol,
         value: usdcData?.value,
         decimals: usdcData?.decimals,
-    });  
+    }); 
 
-    results.set(bnbAddress, {
-        symbol: bnbData?.symbol,
-        value: bnbData?.value,
-        decimals: bnbData?.decimals,
-    });  
-
-    setBalances(results);
     setLoading(false);
-  }, [address, bnbData, usdtData, usdcData]);
 
-  useEffect(() => {
-    if (address) fetchBalances();
-  }, [address, fetchBalances]);
+    return results;
+  }, [address, usdtData, usdcData]);
 
-  return { balances, loading, refetch: fetchBalances, address };
+  return { balances, loading, address };
 }
 
 function getTokenBalance(address: `0x${string}`, tokenAddress: `0x${string}`) {

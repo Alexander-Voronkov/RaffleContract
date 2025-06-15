@@ -38,7 +38,7 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
         feedFetcher = _feedFetcher;
 
         interval = _interval;
-        lastRaffleTimestamp = block.timestamp;
+        lastDepositTimestamp = block.timestamp;
         for (uint256 index = 0; index < _tokens.length; index++) {
             tokensAllowedWithFeed[_tokens[index]] = _feed[index];
         }
@@ -54,16 +54,15 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
     }
 
     uint256 public gamesCount;
-    uint256 public lastRaffleTimestamp;
+    uint256 public lastDepositTimestamp;
     uint256 public interval;
-    bool public canBePlayed;
 
     function checkUpkeep(bytes calldata) external view override returns (bool upkeepNeeded, bytes memory) {
-        upkeepNeeded = canBePlayed && (block.timestamp - lastRaffleTimestamp) >= interval;
+        upkeepNeeded = (block.timestamp - lastDepositTimestamp) >= interval && players.length > 1;
     }
 
     function performUpkeep(bytes calldata) external override {
-        if (canBePlayed && (block.timestamp - lastRaffleTimestamp) >= interval) {
+        if ((block.timestamp - lastDepositTimestamp) >= interval && players.length > 1) {
             pickWinner();
         }
     }
@@ -102,8 +101,7 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
         players.push(msg.sender);
         playersOfCurrentRaffle[msg.sender] = Player(_tokenAddress, _amount, depositedInUsd, decimals);
         totalAmountInUsd += depositedInUsd;
-
-        canBePlayed = true;
+        lastDepositTimestamp = block.timestamp;
 
         emit PlayerJoined(msg.sender, depositedInUsd);
     }
@@ -153,9 +151,10 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
 
         payable(winner).transfer(totalAmountInEth);
 
-        lastRaffleTimestamp = block.timestamp;
+        lastDepositTimestamp = block.timestamp;
         gamesCount++;
-        canBePlayed = false;
+        totalAmountInEth = 0;
+        totalAmountInUsd = 0;
 
         for (uint256 index = 0; index < players.length; index++) {
             delete playersOfCurrentRaffle[players[index]];
