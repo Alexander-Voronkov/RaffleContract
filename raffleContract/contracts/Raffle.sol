@@ -85,6 +85,7 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
 
         require(tokensAllowedWithFeed[_tokenAddress] != address(0), "Token is not allowed");
         require(_amount > 0, "You need to deposit something");
+        require(playersOfCurrentRaffle[msg.sender].depositedTokenAddress == address(0), 'You already participate');
 
         (int currency, uint8 decimals) = feedFetcher.getLatestData(tokensAllowedWithFeed[_tokenAddress]);
 
@@ -107,8 +108,30 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
         emit PlayerJoined(msg.sender, depositedInUsd);
     }
 
-    function getPlayers() external view returns (address[] memory) {
-        return players;
+    struct ResultPlayer {
+        address playerAddress;
+        address depositedTokenAddress;
+        uint depositedTokenAmount;
+        uint amountDepositedInUsd;
+        uint8 decimals;
+        uint stake;
+    }
+
+    function getPlayers() external view returns (ResultPlayer[] memory) {
+        ResultPlayer[] memory result = new ResultPlayer[](players.length);
+
+        for (uint256 index = 0; index < players.length; index++) {
+            result[index] = ResultPlayer(
+                players[index],
+                playersOfCurrentRaffle[players[index]].depositedTokenAddress,
+                playersOfCurrentRaffle[players[index]].depositedTokenAmount,
+                playersOfCurrentRaffle[players[index]].amountDepositedInUsd,
+                playersOfCurrentRaffle[players[index]].decimals,
+                playersOfCurrentRaffle[players[index]].amountDepositedInUsd * 100 / totalAmountInUsd
+            );
+        }
+
+        return result;
     }
 
     event WinnerSelected(address indexed winner, uint indexed winAmountInUsd, uint indexed winAmountInEth);

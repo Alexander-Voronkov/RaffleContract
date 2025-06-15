@@ -1,14 +1,14 @@
 {
-  "ExchangeFeedFetcherModule#ExchangeFeedFetcher": "0x2fcc261bB32262a150E4905F6d550D4FF05bC582",
-  "RaffleModule#Raffle": "0x5E50A3d48982Ba8CCAfE398FB0f8881A31C4f67a",
+  "ExchangeFeedFetcherModule#ExchangeFeedFetcher": "0xB2a1012200e3B0c228DDbD18c7312C6137dd3662",
+  "RaffleModule#Raffle": "0x9e5759a3b59E5EFeB980f3884db390418B16b6FE",
   "SwapperModule#BNB": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
-  "SwapperModule#Swapper": "0x63eE8865A8B25919B5103d02586AaaF078Ee9102",
+  "SwapperModule#Swapper": "0x5F3456C9DF6e9233A7fFB51495F5cfF6C74f20D8",
   "SwapperModule#USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
   "SwapperModule#USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   "SwapperModule#WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-  "VRFModule#VRFMock": "0x90CA02Cb47113c75EB8E102c91B40181616cc9e9",
-  "RaffleModule#TransparentUpgradeableProxy": "0x4B651dcC3C2e4d2Fa6feF95D73eaEC48432b5d6a",
-  "RaffleModule#RaffleProxy": "0x4B651dcC3C2e4d2Fa6feF95D73eaEC48432b5d6a",
-  "RaffleModule#ProxyAdmin": "0x79112C63bCe5d1Df574B77DCa9259D0899951943",
-  "VRFModule#VRFv2Consumer": "0x16932B0c1eA503E4a40C7a75AC7200b4304C8De2"
+  "VRFModule#VRFMock": "0x956d3A0B3161f79E6809cc1313E8F32B0de73B70",
+  "RaffleModule#TransparentUpgradeableProxy": "0x72cdd30c3989D7f87bA563b0DA6ECcdd79fcdA9F",
+  "RaffleModule#RaffleProxy": "0x72cdd30c3989D7f87bA563b0DA6ECcdd79fcdA9F",
+  "RaffleModule#ProxyAdmin": "0xFde8848FCEe32B14b3A5411ff5DE1Aa336D119cE",
+  "VRFModule#VRFv2Consumer": "0xE6711c866D4ee72663521CB2ff8B72879b5f40D0"
 }

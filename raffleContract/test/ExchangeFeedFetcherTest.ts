@@ -29,6 +29,11 @@ describe('ExchangeFeedTests', async () => {
         console.log('USDC TO USD: ', Number(currency3) / (10 ** Number(decimals3)));
         console.log('USDT TO USD: ', Number(currency4) / (10 ** Number(decimals4)));
 
+        console.log('ETH decimals ', decimals1);
+        console.log('BNB decimals ', decimals2);
+        console.log('USDC decimals ', decimals3);
+        console.log('USDT decimals ', decimals4);
+
         expect(currency1).to.be.a('bigint');
         expect(currency2).to.be.a('bigint');
         expect(currency3).to.be.a('bigint');
