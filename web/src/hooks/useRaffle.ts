@@ -14,7 +14,7 @@ interface Player {
 
 export function useRafflePlayers() {
 
-  const { data, isLoading, error } = useReadContract({
+  const { data, isLoading, error, refetch } = useReadContract({
     address: RAFFLE_ADDRESS,
     abi: RaffleAbi.abi,
     functionName: 'getPlayers',
@@ -32,5 +32,6 @@ export function useRafflePlayers() {
     players: resultPlayers,
     isLoading,
     error,
+    refetch,
   };
 }

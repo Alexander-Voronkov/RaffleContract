@@ -13,6 +13,8 @@ const receivers = [
 async function main() {
   const amount = ethers.parseUnits("10000", 6);
 
+  console.log('BLOCK', await ethers.provider.getBlockNumber());
+
   await network.provider.send("hardhat_impersonateAccount", [binanceWhale]);
 
   const signer = await ethers.provider.getSigner(binanceWhale);

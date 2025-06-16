@@ -1,12 +1,12 @@
 import SlotCasino from "../components/Slot";
+import WinnerHistory from "../components/WinnerHistory";
 
 const Home = () => {
   return (
-    <div className="flex w-full h-full items-center justify-center gap-8">
+    <div className="flex w-full h-full items-center justify-around gap-50">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjDmo8Gpgn2Wr3p33euSswV0t0hr4pIaeeMQ&s" alt="Left"/>
-      <div className="w-64">
-        <SlotCasino/>
-      </div>
+      <WinnerHistory></WinnerHistory>
+      <SlotCasino/>
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjDmo8Gpgn2Wr3p33euSswV0t0hr4pIaeeMQ&s" alt="Right" />
   </div>
   );

@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Interface } from "ethers";
 import * as dotenv from "dotenv";
 import RaffleAbi from "../../raffleContract/artifacts/contracts/Raffle.sol/Raffle.json";
 
@@ -12,6 +12,8 @@ const contract = new ethers.Contract(
   wallet
 );
 
+const iface = new Interface(RaffleAbi.abi);
+
 async function checkAndPlay() {
   try {
     await increaseTime(1);
@@ -19,7 +21,7 @@ async function checkAndPlay() {
     const data = await contract.lastDepositTimestamp();
 
     console.log("upkeepNeeded:", upkeepNeeded);
-    console.log("data", data);
+    console.log("lastDepositTimestamp:", data.toString());
 
     if (upkeepNeeded) {
       const tx = await contract.performUpkeep("0x");
@@ -27,6 +29,7 @@ async function checkAndPlay() {
       await tx.wait();
       console.log("performUpkeep confirmed");
     }
+
   } catch (err) {
     console.error("Error during upkeep:", err);
   }

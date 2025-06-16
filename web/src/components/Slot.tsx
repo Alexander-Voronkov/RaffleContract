@@ -13,10 +13,11 @@ import {
   Alert,
 } from '@mui/material';
 import { useAllTokenBalances } from '../hooks/useBalance';
-import { allowedTokens, usdtAddress } from '../constants/tokensAddresses';
-import { useWriteContract, usePublicClient } from 'wagmi';
+import { allowedTokens, usdcAddress, usdtAddress } from '../constants/tokensAddresses';
+import { useWriteContract, usePublicClient, useWalletClient } from 'wagmi';
 import RaffleAbi from '../../../raffleContract/artifacts/contracts/Raffle.sol/Raffle.json';
 import { erc20Abi, formatUnits } from 'viem';
+import { splitSignature } from '../helpers/signingHelpers';
 
 const RAFFLE_ADDRESS = import.meta.env.VITE_RAFFLE_ADDRESS;
 const randomColor = () => `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
@@ -29,15 +30,15 @@ export default function WheelOfFortune() {
   const { balances } = useAllTokenBalances();
   const [selectedToken, setSelectedToken] = useState(usdtAddress);
   const [winner, setWinner] = useState<string | null>(null);
-  const [prizeAmount, setPrizeAmount] = useState<string | null>(null);
   const [showWinner, setShowWinner] = useState<boolean>(false);
   const publicClient = usePublicClient();
   const { writeContract: write } = useWriteContract();
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
+  const { data: walletClient } = useWalletClient();
 
   const totalAmountInUsd = useMemo(() => {
-    if (!players) return 0;
+    if (!players) return 0n;
     return players.reduce((prev, curr) => prev + curr.amountDepositedInUsd, BigInt(0));
   }, [players]);
 
@@ -65,6 +66,77 @@ export default function WheelOfFortune() {
       args: [selectedToken, depositAmountConverted],
     });
   }, [selectedToken, depositAmount, balances, write]);
+
+  const depositAmountConverted = useMemo(() => {
+    return BigInt(Math.floor(depositAmount * 10 ** (balances.get(selectedToken)?.decimals ?? 18)));
+  }, [depositAmount, selectedToken]);
+
+  const depositWithPermit = useCallback(async () => {
+    if (!walletClient || !publicClient) return;
+
+    const owner = walletClient.account.address as `0x${string}`;
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+
+    const nonce = await publicClient.readContract({
+      abi: [
+        {
+          name: 'nonces',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'owner', type: 'address' }],
+          outputs: [{ name: '', type: 'uint256' }],
+        },
+      ],
+      address: usdcAddress as `0x${string}`,
+      functionName: 'nonces',
+      args: [owner],
+    });
+
+    console.log(nonce, 'NONCE')
+
+    const domain = {
+      name: 'USD Coin',
+      version: '2',
+      chainId: 1337,
+      verifyingContract: usdcAddress as `0x${string}`,
+    };
+
+    const types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
+      ],
+    };
+
+    const message = {
+      owner,
+      spender: RAFFLE_ADDRESS as `0x${string}`,
+      value: depositAmountConverted,
+      nonce: nonce,
+      deadline,
+    };
+
+    const signatureString = await walletClient.signTypedData({
+      domain,
+      types,
+      primaryType: 'Permit',
+      message,
+    });
+
+    console.log('SIGNATURE', signatureString);
+
+    const { v, r, s } = splitSignature(signatureString);
+
+    write({
+      abi: RaffleAbi.abi,
+      address: RAFFLE_ADDRESS as `0x${string}`,
+      functionName: 'depositWithPermit',
+      args: [selectedToken, depositAmountConverted, deadline, v, r, s],
+    });
+}, [walletClient, publicClient, selectedToken, depositAmountConverted, write]);
 
   const canDeposit = useMemo(() => depositAmount > 0 && depositAmount <= maxDeposit, [depositAmount, maxDeposit]);
 
@@ -108,23 +180,9 @@ export default function WheelOfFortune() {
       eventName: 'WinnerSelected',
       onLogs: (logs) => {
         const winnerAddress = logs[0].args.winner as string;
-        const amountWonUsd = logs[0].args.winAmountInUsd as bigint;
-        const amountWonEth = logs[0].args.winAmountInEth as bigint;
 
         setShowWinner(false);
         setWinner(winnerAddress);
-
-        const winnerPlayer = players.find(
-          (p) => p.playerAddress.toLowerCase() === winnerAddress.toLowerCase()
-        );
-
-        if (winnerPlayer) {
-          const usdFormatted = Number(formatUnits(amountWonUsd, 18)).toFixed(2);
-          const ethFormatted = Number(formatUnits(amountWonEth, 18)).toFixed(4);
-          setPrizeAmount(`${usdFormatted} USD / ${ethFormatted} ETH`);
-        } else {
-          setPrizeAmount(null);
-        }
       },
     });
 
@@ -162,7 +220,6 @@ export default function WheelOfFortune() {
 
       setTimeout(() => {
         setWinner(null);
-        setPrizeAmount(null);
         setShowWinner(false);
       }, 10000);
     }, 5500);
@@ -187,13 +244,13 @@ export default function WheelOfFortune() {
 
       {timeLeft > 0 && (
         <Typography fontSize={20} fontWeight="bold" color="secondary" mb={2}>
-          Игра начнется через: {timeLeft} сек
+          Пользователи присоиденились. Игра скоро начнется...
         </Typography>
       )}
 
       {showWinner && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Победитель: {winner ? winner.slice(0, 6) : '—'}... выиграл {prizeAmount ?? '—'}!
+          Победитель: {winner ? winner.slice(0, 6) : '—'}... выиграл {formatUnits(totalAmountInUsd, 14) + 'USD'} 
         </Alert>
       )}
 
@@ -212,7 +269,7 @@ export default function WheelOfFortune() {
                 borderRight: '8px solid transparent',
                 borderBottom: '16px solid red',
                 zIndex: 10,
-                transform: 'translateX(-50%)',
+                transform: 'rotate(180deg) translateX(50%)',
               }}
             />
             <Box
@@ -317,6 +374,9 @@ export default function WheelOfFortune() {
 
             <Button variant="contained" color="success" disabled={!canDeposit} onClick={deposit}>
               Депозит
+            </Button>
+            <Button variant="contained" color="success" disabled={selectedToken != usdcAddress || depositAmount === 0 || depositAmount > maxDeposit} onClick={depositWithPermit}>
+              Депозит с пермитом
             </Button>
           </Box>
         </Box>

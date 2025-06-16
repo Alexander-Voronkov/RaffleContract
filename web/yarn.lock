@@ -4599,6 +4599,11 @@ vite@^6.3.5:
   optionalDependencies:
     fsevents "~2.3.3"
 
+wagmi-permit@1.0.18:
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/wagmi-permit/-/wagmi-permit-1.0.18.tgz#be5ada0473861da7dee7820c6333017d589446ed"
+  integrity sha512-tegXApaD9AzRiHcjjXf+wtuvThevxjv9+zmCzU7XNb9rmXR+ffueiPokdIqY9ponTeN0YncMkPDkoOAanZFOXA==
+
 wagmi@^2.15.6:
   version "2.15.6"
   resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-2.15.6.tgz#eaad3576f29f383bb082cac53694fae3a9075393"

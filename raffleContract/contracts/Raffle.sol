@@ -9,6 +9,7 @@ import "./VRFMock.sol";
 import "./VRFv2Consumer.sol";
 import "./Swapper.sol";
 import "./ExchangeFeedFetcher.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterface {
 
@@ -106,6 +107,49 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
         emit PlayerJoined(msg.sender, depositedInUsd);
     }
 
+    function depositWithPermit(
+        address _tokenAddress, 
+        uint _amount,
+        uint deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+
+        require(tokensAllowedWithFeed[_tokenAddress] != address(0), "Token is not allowed");
+        require(_amount > 0, "You need to deposit something");
+        require(playersOfCurrentRaffle[msg.sender].depositedTokenAddress == address(0), 'You already participate');
+
+        (int currency, uint8 decimals) = feedFetcher.getLatestData(tokensAllowedWithFeed[_tokenAddress]);
+
+        require(currency > 0, "Token is not supported or not available at the moment");
+        
+        IERC20Permit(_tokenAddress).permit(
+            msg.sender,
+            address(this),
+            _amount,
+            deadline,
+            v, r, s
+        );
+
+        IERC20(_tokenAddress).transferFrom(msg.sender, address(this), _amount);
+
+        IERC20(_tokenAddress).safeIncreaseAllowance(address(swapper), _amount);
+
+        uint amountToWithdraw = swapper.swapTokenForETH(_tokenAddress, _amount, address(this), address(this));
+        IWETH(swapper.WETH9()).withdraw(amountToWithdraw);
+
+        totalAmountInEth += amountToWithdraw;
+
+        uint depositedInUsd = uint(currency) * _amount;
+        players.push(msg.sender);
+        playersOfCurrentRaffle[msg.sender] = Player(_tokenAddress, _amount, depositedInUsd, decimals);
+        totalAmountInUsd += depositedInUsd;
+        lastDepositTimestamp = block.timestamp;
+
+        emit PlayerJoined(msg.sender, depositedInUsd);
+    }
+
     struct ResultPlayer {
         address playerAddress;
         address depositedTokenAddress;
@@ -132,7 +176,7 @@ contract Raffle is Initializable, OwnableUpgradeable, AutomationCompatibleInterf
         return result;
     }
 
-    event WinnerSelected(address indexed winner, uint indexed winAmountInUsd, uint indexed winAmountInEth);
+    event WinnerSelected(address indexed winner, uint winAmountInUsd, uint winAmountInEth);
 
     function pickWinner() internal {
 
