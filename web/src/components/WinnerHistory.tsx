@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { usePublicClient } from 'wagmi';
-import RaffleAbi from '../../../raffleContract/artifacts/contracts/Raffle.sol/Raffle.json';
-import { parseAbiItem } from 'viem';
-import { getContractEvents } from 'viem/actions';
+import { useEffect, useState } from "react";
+import { usePublicClient } from "wagmi";
+import RaffleAbi from "../../../raffleContract/artifacts/contracts/Raffle.sol/Raffle.json";
+import { parseAbiItem } from "viem";
+import { getContractEvents } from "viem/actions";
 
 const RAFFLE_ADDRESS = import.meta.env.VITE_RAFFLE_ADDRESS as `0x${string}`;
 
@@ -19,22 +19,22 @@ export default function WinnerHistory() {
         setLoading(true);
 
         const logs = await getContractEvents(publicClient, {
-            address: RAFFLE_ADDRESS,
-            abi: RaffleAbi.abi,
-            eventName: 'WinnerSelected',
-            fromBlock: 22715994n,
-            toBlock: 'latest'
+          address: RAFFLE_ADDRESS,
+          abi: RaffleAbi.abi,
+          eventName: "WinnerSelected",
+          fromBlock: 22715994n,
+          toBlock: "latest",
         });
 
-        console.log('past winners', logs);
+        console.log("past winners", logs);
 
-        const parsed = logs.map(log => ({
+        const parsed = logs.map((log) => ({
           address: log.args.winner as string,
         }));
 
         setWinners(parsed);
       } catch (error) {
-        console.error('Ошибка при получении событий WinnerSelected:', error);
+        console.error("Ошибка при получении событий WinnerSelected:", error);
       } finally {
         setLoading(false);
       }
@@ -50,9 +50,7 @@ export default function WinnerHistory() {
       {!loading && winners.length === 0 && <p>Пока нет победителей</p>}
       <ul>
         {winners.map((winner, index) => (
-          <li key={index}>
-            {winner.address}
-          </li>
+          <li key={index}>{winner.address}</li>
         ))}
       </ul>
     </div>

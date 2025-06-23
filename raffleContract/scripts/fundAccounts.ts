@@ -1,9 +1,5 @@
 import { ethers, network } from "hardhat";
-import {
-  binanceWhale,
-  usdcAddress,
-  usdtAddress,
-} from "../constants/contractAddresses";
+import { binanceWhale, usdcAddress, usdtAddress } from "../constants/contractAddresses";
 
 const receivers = [
   "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -31,9 +27,7 @@ async function main() {
     await usdc.connect(signer).transfer(receiver, amount);
   }
 
-  await network.provider.send("hardhat_stopImpersonatingAccount", [
-    binanceWhale,
-  ]);
+  await network.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);
 
   console.log("✅ Done.");
 }

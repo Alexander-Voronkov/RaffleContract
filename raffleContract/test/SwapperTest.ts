@@ -1,13 +1,6 @@
 import { ethers, ignition } from "hardhat";
 import SwapperModule from "../ignition/modules/SwapperModule";
-import {
-  IERC20,
-  IERC20__factory,
-  IWETH,
-  IWETH__factory,
-  Swapper,
-  Swapper__factory,
-} from "../typechain-types";
+import { IERC20, IERC20__factory, IWETH__factory, Swapper__factory } from "../typechain-types";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { AddressLike } from "ethers";
 import { binanceWhale, usdtAddress } from "../constants/contractAddresses";
@@ -17,19 +10,14 @@ describe("SwapperTests", async () => {
     await ethers.provider.send("hardhat_impersonateAccount", [binanceWhale]);
     const whale = await ethers.getSigner(binanceWhale);
     await usdt.connect(whale).transfer(to, amount);
-    await ethers.provider.send("hardhat_stopImpersonatingAccount", [
-      binanceWhale,
-    ]);
+    await ethers.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);
   }
 
   async function deploySwapper() {
     const { swapper, usdt, usdc, weth } = await ignition.deploy(SwapperModule);
     const [owner, ...others] = await ethers.getSigners();
 
-    const typedSwapper = Swapper__factory.connect(
-      await swapper.getAddress(),
-      owner,
-    );
+    const typedSwapper = Swapper__factory.connect(await swapper.getAddress(), owner);
     const typedUsdt = IERC20__factory.connect(await usdt.getAddress(), owner);
     const typedUsdc = IERC20__factory.connect(await usdc.getAddress(), owner);
     const typedWeth = IWETH__factory.connect(await weth.getAddress(), owner);
@@ -45,26 +33,16 @@ describe("SwapperTests", async () => {
   }
 
   it("swapper is swapping between all supported tokens", async () => {
-    const { swapper, usdt, usdc, weth, owner, others } =
-      await loadFixture(deploySwapper);
+    const { swapper, usdt, weth, others } = await loadFixture(deploySwapper);
 
     await fundWithUSDT(others[0], BigInt(1000000 * 3000), usdt);
-    const balanceAfterFunding = await usdt
-      .connect(others[0])
-      .balanceOf(others[0]);
+    const balanceAfterFunding = await usdt.connect(others[0]).balanceOf(others[0]);
 
-    console.log(
-      "balance after funding: ",
-      ethers.formatUnits(balanceAfterFunding, 6),
-      "USDT",
-    );
+    console.log("balance after funding: ", ethers.formatUnits(balanceAfterFunding, 6), "USDT");
 
     await usdt.connect(others[0]).approve(swapper, 0);
     await usdt.connect(others[0]).approve(swapper, 1000000 * 3000);
-    console.log(
-      "ALLOWANCE ",
-      ethers.formatUnits(await usdt.allowance(others[0], swapper), 6),
-    );
+    console.log("ALLOWANCE ", ethers.formatUnits(await usdt.allowance(others[0], swapper), 6));
 
     let receiverBalanceInWeth = await weth.balanceOf(others[1]);
     console.log(
@@ -72,12 +50,7 @@ describe("SwapperTests", async () => {
       ethers.formatEther(receiverBalanceInWeth),
     );
 
-    await swapper.swapTokenForETH(
-      usdtAddress,
-      1000000 * 3000,
-      others[0],
-      others[1],
-    );
+    await swapper.swapTokenForETH(usdtAddress, 1000000 * 3000, others[0], others[1]);
 
     receiverBalanceInWeth = await weth.balanceOf(others[1]);
     console.log(
@@ -87,18 +60,10 @@ describe("SwapperTests", async () => {
     );
 
     let receiverBalanceInEth = await ethers.provider.getBalance(others[1]);
-    console.log(
-      "balance before withdraw: ",
-      ethers.formatEther(receiverBalanceInEth),
-      "ETH",
-    );
+    console.log("balance before withdraw: ", ethers.formatEther(receiverBalanceInEth), "ETH");
     await weth.connect(others[1]).withdraw(receiverBalanceInWeth);
 
     receiverBalanceInEth = await ethers.provider.getBalance(others[1]);
-    console.log(
-      "balance after withdraw: ",
-      ethers.formatEther(receiverBalanceInEth),
-      "ETH",
-    );
+    console.log("balance after withdraw: ", ethers.formatEther(receiverBalanceInEth), "ETH");
   });
 });

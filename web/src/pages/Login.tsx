@@ -1,21 +1,27 @@
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
-import { Navigate } from 'react-router-dom';
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+import { Navigate } from "react-router-dom";
 
-import { routes } from '../router';
-import { Button } from '@mui/material';
+import { routes } from "../router";
+import { Button } from "@mui/material";
 
 const LoginPage = () => {
   const { status } = useAppKitAccount();
   const { open } = useAppKit();
 
-  return status === 'connected' ? (
+  return status === "connected" ? (
     <Navigate to={routes.root} />
   ) : (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <Button className="w-full h-full" variant="contained" onClick={() => open()}>Играть</Button>
+            <Button
+              className="w-full h-full"
+              variant="contained"
+              onClick={() => open()}
+            >
+              Играть
+            </Button>
           </div>
         </div>
       </div>

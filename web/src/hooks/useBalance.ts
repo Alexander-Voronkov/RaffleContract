@@ -12,27 +12,27 @@ type TokenBalance = {
 export function useAllTokenBalances() {
   const [loading, setLoading] = useState(false);
   const { address } = useAppKitAccount();
-  
-  const usdtData  = getTokenBalance(address as `0x${string}`, usdtAddress);
+
+  const usdtData = getTokenBalance(address as `0x${string}`, usdtAddress);
   const usdcData = getTokenBalance(address as `0x${string}`, usdcAddress);
 
   const balances = useMemo(() => {
-    console.log('refetching ...');
+    console.log("refetching ...");
 
     setLoading(true);
     const results: Map<string, TokenBalance> = new Map<string, TokenBalance>();
 
     results.set(usdtAddress, {
-        symbol: usdtData?.symbol,
-        value: usdtData?.value,
-        decimals: usdtData?.decimals,
-    });   
+      symbol: usdtData?.symbol,
+      value: usdtData?.value,
+      decimals: usdtData?.decimals,
+    });
 
     results.set(usdcAddress, {
-        symbol: usdcData?.symbol,
-        value: usdcData?.value,
-        decimals: usdcData?.decimals,
-    }); 
+      symbol: usdcData?.symbol,
+      value: usdcData?.value,
+      decimals: usdcData?.decimals,
+    });
 
     setLoading(false);
 
@@ -44,8 +44,8 @@ export function useAllTokenBalances() {
 
 function getTokenBalance(address: `0x${string}`, tokenAddress: `0x${string}`) {
   const { data } = useBalance({
-      address: address,
-      token: tokenAddress,
+    address: address,
+    token: tokenAddress,
   });
 
   return data;

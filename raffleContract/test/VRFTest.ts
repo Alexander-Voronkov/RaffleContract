@@ -2,12 +2,7 @@ import { ethers, ignition } from "hardhat";
 import VRFModule from "../ignition/modules/VRFModule";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import {
-  VRFMock,
-  VRFMock__factory,
-  VRFv2Consumer,
-  VRFv2Consumer__factory,
-} from "../typechain-types";
+import { VRFMock__factory, VRFv2Consumer__factory } from "../typechain-types";
 
 describe("VRF tests", async function () {
   async function deployVrf() {
@@ -15,10 +10,7 @@ describe("VRF tests", async function () {
     const [owner, ...others] = await ethers.getSigners();
 
     const typedMock = VRFMock__factory.connect(await mock.getAddress(), owner);
-    const typedConsumer = VRFv2Consumer__factory.connect(
-      await consumer.getAddress(),
-      owner,
-    );
+    const typedConsumer = VRFv2Consumer__factory.connect(await consumer.getAddress(), owner);
 
     return { mock: typedMock, consumer: typedConsumer, owner, others };
   }
@@ -28,7 +20,7 @@ describe("VRF tests", async function () {
 
     const tx = await consumer.connect(owner).requestRandomWords();
     await expect(tx).to.emit(mock, "RandomWordsRequested");
-    const receipt = await tx.wait();
+    await tx.wait();
 
     const requestId = await consumer.s_requestId();
     await mock.fulfillRandomWords(requestId, consumer);

@@ -1,5 +1,5 @@
 import { RouterProvider } from "react-router-dom";
-import Providers from "./providers/Providers"
+import Providers from "./providers/Providers";
 import { router } from "./router";
 
 function App() {
@@ -10,6 +10,6 @@ function App() {
       </Providers>
     </>
   );
-};
+}
 
-export default App
+export default App;

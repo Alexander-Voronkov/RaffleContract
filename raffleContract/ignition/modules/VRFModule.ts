@@ -9,16 +9,9 @@ const VRFModule = buildModule("VRFModule", (m) => {
     id: "createSubscriptionCall",
   });
 
-  const subscriptionId = m.readEventArgument(
-    createSubTx,
-    "SubscriptionCreated",
-    "subId",
-  );
+  const subscriptionId = m.readEventArgument(createSubTx, "SubscriptionCreated", "subId");
 
-  m.call(coordinatorMock, "fundSubscription", [
-    subscriptionId,
-    BigInt(10000000000000000000),
-  ]);
+  m.call(coordinatorMock, "fundSubscription", [subscriptionId, BigInt(10000000000000000000)]);
 
   const consumer = m.contract("VRFv2Consumer", [
     subscriptionId,

@@ -19,11 +19,7 @@ const RaffleModule = (interval: number = 60) =>
 
     const raffleImpl = m.contract("Raffle");
 
-    const proxy = m.contract("TransparentUpgradeableProxy", [
-      raffleImpl,
-      admin,
-      "0x",
-    ]);
+    const proxy = m.contract("TransparentUpgradeableProxy", [raffleImpl, admin, "0x"]);
 
     const raffleProxy = m.contractAt("Raffle", proxy, {
       id: "RaffleProxy",
@@ -44,11 +40,7 @@ const RaffleModule = (interval: number = 60) =>
       { from: admin },
     );
 
-    const proxyAdminAddress = m.readEventArgument(
-      proxy,
-      "AdminChanged",
-      "newAdmin",
-    );
+    const proxyAdminAddress = m.readEventArgument(proxy, "AdminChanged", "newAdmin");
 
     const proxyAdmin = m.contractAt("ProxyAdmin", proxyAdminAddress);
 

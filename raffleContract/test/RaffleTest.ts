@@ -6,7 +6,6 @@ import {
   IERC20,
   IERC20__factory,
   IWETH__factory,
-  Raffle,
   Raffle__factory,
   Swapper__factory,
 } from "../typechain-types";
@@ -20,33 +19,17 @@ describe("RaffleTests", async () => {
     await ethers.provider.send("hardhat_impersonateAccount", [binanceWhale]);
     const whale = await ethers.getSigner(binanceWhale);
     await usdt.connect(whale).transfer(to, amount);
-    await ethers.provider.send("hardhat_stopImpersonatingAccount", [
-      binanceWhale,
-    ]);
+    await ethers.provider.send("hardhat_stopImpersonatingAccount", [binanceWhale]);
   }
 
   async function deployRaffleModule() {
-    const {
-      proxy,
-      raffleProxy,
-      proxyAdmin,
-      mock,
-      consumer,
-      swapper,
-      usdc,
-      usdt,
-      weth,
-    } = await ignition.deploy(RaffleModule(interval));
+    const { raffleProxy, mock, consumer, swapper, usdc, usdt, weth } = await ignition.deploy(
+      RaffleModule(interval),
+    );
     const [owner, ...others] = await ethers.getSigners();
 
-    const typedProxy = Raffle__factory.connect(
-      await raffleProxy.getAddress(),
-      owner,
-    );
-    const typedSwapper = Swapper__factory.connect(
-      await swapper.getAddress(),
-      owner,
-    );
+    const typedProxy = Raffle__factory.connect(await raffleProxy.getAddress(), owner);
+    const typedSwapper = Swapper__factory.connect(await swapper.getAddress(), owner);
     const typedUsdt = IERC20__factory.connect(await usdt.getAddress(), owner);
     const typedUsdc = IERC20__factory.connect(await usdc.getAddress(), owner);
     const typedWeth = IWETH__factory.connect(await weth.getAddress(), owner);
@@ -70,17 +53,14 @@ describe("RaffleTests", async () => {
 
     expect(network.chainId).to.eq(1337);
 
-    const balance = await ethers.provider.getBalance(
-      "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    );
+    const balance = await ethers.provider.getBalance("0x742d35Cc6634C0532925a3b844Bc454e4438f44e");
     expect(balance).to.be.a("bigint");
   });
 
   it("should be ownable", async () => {
     interval = 60;
 
-    const { raffleProxy, owner, usdt, usdc } =
-      await loadFixture(deployRaffleModule);
+    const { raffleProxy, owner } = await loadFixture(deployRaffleModule);
 
     const raffleOwner = await raffleProxy.owner();
 
@@ -101,19 +81,11 @@ describe("RaffleTests", async () => {
 
     console.log(
       "ALLOWANCE",
-      ethers.formatUnits(
-        await usdt.allowance(others[0], raffleProxy.target),
-        6,
-      ),
+      ethers.formatUnits(await usdt.allowance(others[0], raffleProxy.target), 6),
     );
-    console.log(
-      "USDT BALANCE",
-      ethers.formatUnits(await usdt.balanceOf(others[0]), 6),
-    );
+    console.log("USDT BALANCE", ethers.formatUnits(await usdt.balanceOf(others[0]), 6));
 
-    await raffleProxy
-      .connect(others[0])
-      .deposit(usdtAddress, BigInt(1000000 * 1000));
+    await raffleProxy.connect(others[0]).deposit(usdtAddress, BigInt(1000000 * 1000));
 
     expect(await raffleProxy.totalAmountInUsd()).to.be.greaterThan(0);
 
@@ -144,58 +116,32 @@ describe("RaffleTests", async () => {
     await usdt.connect(others[1]).approve(raffleProxy, depositAmount * 2n);
 
     console.log("--- before deposit ---");
-    console.log(
-      "player 0 balance:",
-      ethers.formatUnits(await usdt.balanceOf(others[0]), 6),
-    );
-    console.log(
-      "player 1 balance:",
-      ethers.formatUnits(await usdt.balanceOf(others[1]), 6),
-    );
+    console.log("player 0 balance:", ethers.formatUnits(await usdt.balanceOf(others[0]), 6));
+    console.log("player 1 balance:", ethers.formatUnits(await usdt.balanceOf(others[1]), 6));
     console.log(
       "contract USDT balance:",
-      ethers.formatUnits(
-        await usdt.balanceOf(await raffleProxy.getAddress()),
-        6,
-      ),
+      ethers.formatUnits(await usdt.balanceOf(await raffleProxy.getAddress()), 6),
     );
 
     await raffleProxy.connect(others[0]).deposit(usdtAddress, depositAmount);
-    await raffleProxy
-      .connect(others[1])
-      .deposit(usdtAddress, depositAmount * 2n);
+    await raffleProxy.connect(others[1]).deposit(usdtAddress, depositAmount * 2n);
 
     console.log("--- after dpeosit ---");
-    console.log(
-      "player 0 balance:",
-      ethers.formatUnits(await usdt.balanceOf(others[0]), 6),
-    );
-    console.log(
-      "player 1 balance:",
-      ethers.formatUnits(await usdt.balanceOf(others[1]), 6),
-    );
+    console.log("player 0 balance:", ethers.formatUnits(await usdt.balanceOf(others[0]), 6));
+    console.log("player 1 balance:", ethers.formatUnits(await usdt.balanceOf(others[1]), 6));
     console.log(
       "contract USDT balance:",
-      ethers.formatUnits(
-        await usdt.balanceOf(await raffleProxy.getAddress()),
-        6,
-      ),
+      ethers.formatUnits(await usdt.balanceOf(await raffleProxy.getAddress()), 6),
     );
-    console.log(
-      "totalAmountInUsd:",
-      (await raffleProxy.totalAmountInUsd()).toString(),
-    );
-    console.log(
-      "totalAmountInEth:",
-      (await raffleProxy.totalAmountInEth()).toString(),
-    );
+    console.log("totalAmountInUsd:", (await raffleProxy.totalAmountInUsd()).toString());
+    console.log("totalAmountInEth:", (await raffleProxy.totalAmountInEth()).toString());
 
     const players = await raffleProxy.getPlayers();
     console.log("players:", players);
 
     await time.increase(interval + 1);
 
-    let [needed] = await raffleProxy.checkUpkeep("0x");
+    const [needed] = await raffleProxy.checkUpkeep("0x");
     console.log("upkeep needed (spin needs to be executed):", needed);
 
     const gamesBefore = await raffleProxy.gamesCount();
@@ -204,18 +150,10 @@ describe("RaffleTests", async () => {
       console.log("EVENT WINNER SELECTED: ", event);
     });
 
-    await expect(raffleProxy.performUpkeep("0x")).to.emit(
-      raffleProxy,
-      "WinnerSelected",
-    );
+    await expect(raffleProxy.performUpkeep("0x")).to.emit(raffleProxy, "WinnerSelected");
 
     const gamesAfter = await raffleProxy.gamesCount();
-    console.log(
-      "games count before:",
-      gamesBefore.toString(),
-      "after:",
-      gamesAfter.toString(),
-    );
+    console.log("games count before:", gamesBefore.toString(), "after:", gamesAfter.toString());
 
     const playersAfter = await raffleProxy.getPlayers();
     console.log("players after game:", playersAfter);

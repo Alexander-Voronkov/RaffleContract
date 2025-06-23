@@ -13,20 +13,19 @@ interface Player {
 }
 
 export function useRafflePlayers() {
-
   const { data, isLoading, error, refetch } = useReadContract({
     address: RAFFLE_ADDRESS,
     abi: RaffleAbi.abi,
-    functionName: 'getPlayers',
+    functionName: "getPlayers",
   });
-  
+
   const resultPlayers = (data ?? []) as Player[];
 
-  resultPlayers.forEach(p => {
+  resultPlayers.forEach((p) => {
     p.stake = Number(p.stake);
   });
 
-  console.log('players: ', resultPlayers);
+  console.log("players: ", resultPlayers);
 
   return {
     players: resultPlayers,
