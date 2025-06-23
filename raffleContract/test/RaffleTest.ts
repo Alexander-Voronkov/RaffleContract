@@ -9,7 +9,7 @@ import {
   Raffle__factory,
   Swapper__factory,
 } from "../typechain-types";
-import { binanceWhale, usdtAddress } from "../constants/contractAddresses";
+import { binanceWhale, usdcAddress, usdtAddress } from "../constants/contractAddresses";
 import { AddressLike } from "ethers";
 
 describe("RaffleTests", async () => {
@@ -69,7 +69,7 @@ describe("RaffleTests", async () => {
 
   it("should perform upkeep after interval", async function () {
     interval = 60;
-    const { raffleProxy, others, usdt } = await loadFixture(deployRaffleModule);
+    const { raffleProxy, others, usdt, usdc } = await loadFixture(deployRaffleModule);
 
     // await others[0].sendTransaction({
     //     to: raffleProxy,
@@ -77,7 +77,9 @@ describe("RaffleTests", async () => {
     // });
 
     await fundWithUSDT(others[0], BigInt(1000000 * 10000), usdt); // 10k baksov
+    await fundWithUSDT(others[1], BigInt(1000000 * 10000), usdc); // 10k baksov
     await usdt.connect(others[0]).approve(raffleProxy, BigInt(1000000 * 1000)); // allow to spend 1k
+    await usdc.connect(others[1]).approve(raffleProxy, BigInt(1000000 * 1000)); // allow to spend 1k
 
     console.log(
       "ALLOWANCE",
@@ -86,6 +88,7 @@ describe("RaffleTests", async () => {
     console.log("USDT BALANCE", ethers.formatUnits(await usdt.balanceOf(others[0]), 6));
 
     await raffleProxy.connect(others[0]).deposit(usdtAddress, BigInt(1000000 * 1000));
+    await raffleProxy.connect(others[1]).deposit(usdcAddress, BigInt(1000000 * 1000));
 
     expect(await raffleProxy.totalAmountInUsd()).to.be.greaterThan(0);
 
